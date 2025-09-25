@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Login - Simulador de Tiro Militar</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            background: linear-gradient(135deg, #0e3353, #2e3d34);
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .login-container {
+            background: rgba(8, 27, 113, 0.701);
+            padding: 30px;
+            border-radius: 12px;
+            width: 300px;
+            text-align: center;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+        }
+
+        h2 {
+            margin-bottom: 20px;
+            color: #c8d6c5;
+        }
+
+        label {
+            display: block;
+            text-align: left;
+            margin: 10px 0 5px;
+            font-weight: bold;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            border-radius: 6px;
+            border: none;
+            margin-bottom: 15px;
+            font-size: 1rem;
+        }
+
+        button, .back-btn {
+            display: inline-block;
+            padding: 10px 18px;
+            border-radius: 6px;
+            border: none;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: 0.3s ease;
+            text-decoration: none;
+        }
+
+        button {
+            background-color: #3d5a40;
+            color: white;
+        }
+
+        button:hover {
+            background-color: #588157;
+        }
+
+        .back-btn {
+            background-color: #444;
+            color: #fff;
+            margin-top: 10px;
+        }
+
+        .back-btn:hover {
+            background-color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <h2>Iniciar sesión</h2>
+        <form method="POST">
+            <label for="usuario">Usuario:</label>
+            <input type="text" id="usuario" name="usuario" required>
+
+            <button type="submit">Ingresar</button>
+        </form>
+        <!-- Botón de regreso a bienvenida -->
+        <a href="{{ url_for('index') }}" class="back-btn">⬅ Volver a inicio</a>
+    </div>
+</body>
+</html>

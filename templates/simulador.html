@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <title>Simulador de Tiro</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(to bottom, #2b2d42, #1a1b26);
+            color: #edf2f4;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        h2 {
+            margin-top: 5px;
+            color: #f4f4f4;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+
+        
+        .simulador-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 50px;
+            margin-top: 30px;
+            justify-content: flex-start;    /* Para que todo quede alineado a la izquierda */
+            width: 100%;
+            max-width: 1100px;              /* Puedes aumentar para que haya espacio a la izquierda */
+            padding-left: 40px;             /* Mueve todo un poco a la derecha dejando más espacio a la izquierda */
+        }
+
+        .logo-pistola {
+            max-width: 200px;  /* Más grande */
+            opacity: 1;        /* Normal, sin transparencia */
+            filter: none;      /* Sin sombra ni efectos */
+            user-select: none;
+            pointer-events: none;
+        }
+
+
+        canvas {
+            border: 2px solid #8d99ae;
+            border-radius: 10px;
+            background-color: #ffffff;
+            box-shadow: 0 0 15px rgba(0,0,0,0.5);
+        }
+
+        .logout-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background-color: #ef233c;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            box-shadow: 0px 4px 8px rgba(0,0,0,0.4);
+        }
+
+        .logout-btn:hover {
+            background-color: #d90429;
+            transform: scale(1.05);
+        }
+
+        #marcador {
+            margin-top: 15px;
+            background: rgba(0, 255, 0, 0.1);
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-weight: bold;
+            font-size: 1.2rem;
+            max-width: 600px;
+            text-align: center;
+        }
+
+        @media (max-width: 700px) {
+            .simulador-wrapper {
+                flex-direction: column;
+                gap: 20px;
+            }
+            .logo-pistola {
+                max-width: 100px;
+            }
+            canvas {
+                width: 90vw !important;
+                height: 90vw !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Botón de cerrar sesión -->
+    <a href="{{ url_for('logout') }}" class="logout-btn">🚪 Cerrar sesión</a>
+
+    <h2>Simulador de Tiro - Pistola 9 mm</h2>
+
+    <div class="simulador-wrapper">
+        <img src="/static/images/pistola.png" alt="Pistola" class="logo-pistola" />
+        <canvas id="tiro" width="500" height="500"></canvas>
+    </div>
+
+    <div id="marcador"></div>
+
+    <script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.0/socket.io.min.js"></script>
+    <script src="/static/js/simulador_tecla.js"></script>
+
+    <script>
+      const socket = io();
+
+      socket.on('nuevo_disparo', data => {
+        const canvas = document.getElementById('tiro');
+        const ctx = canvas.getContext('2d');
+        ctx.beginPath();
+        ctx.arc(data.x, data.y, 5, 0, Math.PI * 2);
+        ctx.fillStyle = 'red';
+        ctx.fill();
+
+        let marcador = document.getElementById('marcador');
+        marcador.textContent = `Disparo Arduino: ${data.puntos} puntos`;
+      });
+    </script>
+</body>
+</html>

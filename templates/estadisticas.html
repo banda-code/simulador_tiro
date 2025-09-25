@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Estadísticas</title>
+</head>
+<body>
+    <h2>Últimos 10 disparos</h2>
+    <table border="1">
+        <tr>
+            <th>Puntos</th>
+            <th>Fecha y Hora</th>
+        </tr>
+        {% for d in disparos %}
+        <tr>
+            <td>{{ d['puntos'] }}</td>
+            <td>{{ d['timestamp'] }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+    <a href="/simulador">Volver al simulador</a>
+</body>
+</html>
