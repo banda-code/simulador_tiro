@@ -40,6 +40,7 @@
             filter: none;      /* Sin sombra ni efectos */
             user-select: none;
             pointer-events: none;
+            transform: scaleX(-1);
         }
 
 
@@ -95,17 +96,97 @@
                 height: 90vw !important;
             }
         }
+        #panel-puntos {
+            background: rgba(0,0,0,0.3);
+            padding: 15px 20px;
+            border-radius: 10px;
+            min-width: 200px;
+            font-size: 1rem;
+            box-shadow: 0 0 10px rgba(0,0,0,0.5);
+        }
+        #panel-puntos h3 {
+            margin-top: 0;
+            margin-bottom: 10px;
+            color: #06d6a0;
+        }
+        #panel-puntos p {
+            margin: 8px 0;
+        }
+        #tabla-historial {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+            font-size: 0.9rem;
+            background: rgba(255,255,255,0.05);
+        }
+
+        #tabla-historial th, #tabla-historial td {
+            border: 1px solid #8d99ae;
+            padding: 5px 8px;
+            text-align: center;
+        }
+
+        #tabla-historial th {
+            background: rgba(255,255,255,0.15);
+            color: #edf2f4;
+        }
+
+        #tabla-historial tr:nth-child(even) {
+            background: rgba(0,0,0,0.2);
+        }
+        #btn-reset {
+            margin-top: 12px;
+            background: #ef233c;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            transition: background 0.3s ease;
+            width: 100%;
+        }
+
+        #btn-reset:hover {
+            background: #d90429;
+        }
     </style>
 </head>
 <body>
+    <audio id="sonido-disparo" src="/static/sounds/disparo.mp3" preload="auto"></audio>
     <!-- Botón de cerrar sesión -->
     <a href="{{ url_for('logout') }}" class="logout-btn">🚪 Cerrar sesión</a>
 
-    <h2>Simulador de Tiro - Pistola 9 mm</h2>
+    <h2 style="text-align: center;">
+        SIMULADOR DE TIRO ARMADA BOLIVIANA<br>
+        <span style="display: block; font-size: 1.2rem; margin-top: 5px;">Pistola 9 mm</span>
+    </h2>
 
     <div class="simulador-wrapper">
         <img src="/static/images/pistola.png" alt="Pistola" class="logo-pistola" />
         <canvas id="tiro" width="500" height="500"></canvas>
+        <!-- 📊 Panel lateral de estadísticas -->
+        <div id="panel-puntos">
+            <h3>📊 Estadísticas</h3>
+            <p id="contador-tiros">Tiros realizados: 0</p>
+            <p id="total-puntos">Total puntos: 0</p>
+            <p id="ultimo-puntos">Último tiro: 0</p>
+            <!-- 📜 Historial de tiros -->
+            <h4>Historial de tiros</h4>
+            <table id="tabla-historial">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Puntos</th>
+                        <th>Posición (x,y)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Se van agregando filas con cada tiro -->
+                </tbody>
+            </table>
+            <button id="btn-reset">🔄 Reiniciar marcador</button>
+        </div>
     </div>
 
     <div id="marcador"></div>
@@ -114,19 +195,123 @@
     <script src="/static/js/simulador_tecla.js"></script>
 
     <script>
-      const socket = io();
+        const socket = io();
 
-      socket.on('nuevo_disparo', data => {
-        const canvas = document.getElementById('tiro');
-        const ctx = canvas.getContext('2d');
-        ctx.beginPath();
-        ctx.arc(data.x, data.y, 5, 0, Math.PI * 2);
-        ctx.fillStyle = 'red';
-        ctx.fill();
+        let tiros = 0;
+        let totalPuntos = 0;
 
-        let marcador = document.getElementById('marcador');
-        marcador.textContent = `Disparo Arduino: ${data.puntos} puntos`;
-      });
+        // 🎯 Función para dibujar el blanco completo con numeración
+        function dibujarBlanco() {
+            const canvas = document.getElementById('tiro');
+            const ctx = canvas.getContext('2d');
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height); // limpiar canvas
+
+            const cx = canvas.width / 2;
+            const cy = canvas.height / 2;
+
+            for (let i = 10; i >= 1; i--) {
+                const radio = i * 20; // cada círculo 20px más grande
+                let color = '';
+                switch(i) {
+                    case 10: color = '#e6e5e3ff'; break; // dorado
+                    case 9:  color = '#e6e5e3ff'; break;
+                    case 8:  color = '#e6e5e3ff'; break;
+                    case 7:  color = '#e6e5e3ff'; break;
+                    case 6:  color = '#e6e5e3ff'; break;
+                    case 5:  color = '#e6e5e3ff'; break;
+                    case 4:  color = '#e6e5e3ff'; break;
+                    case 3:  color = '#e6e5e3ff'; break;
+                    case 2:  color = '#e6e5e3ff'; break;
+                    case 1:  color = '#e6e5e3ff'; break;
+                }
+
+                // Dibujar círculo
+                ctx.beginPath();
+                ctx.arc(cx, cy, radio, 0, Math.PI * 2);
+                ctx.fillStyle = color;
+                ctx.fill();
+                ctx.strokeStyle = 'black';
+                ctx.stroke();
+
+                // Escribir número dentro del círculo
+                ctx.fillStyle = 'black';
+                ctx.font = '16px Arial';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(11 - i, cx, cy - radio + 15); // ajustamos vertical para que se vea
+            }
+        }
+
+        // Dibujar blanco al cargar la página
+        window.onload = dibujarBlanco;
+
+        // Evento cuando llega un disparo
+        socket.on('nuevo_disparo', data => {
+            const canvas = document.getElementById('tiro');
+            const ctx = canvas.getContext('2d');
+
+            const cx = canvas.width / 2;
+            const cy = canvas.height / 2;
+
+            const dx = data.x - cx;
+            const dy = data.y - cy;
+            const dist = Math.sqrt(dx*dx + dy*dy);
+
+            // Calcular puntos según el círculo
+            let puntos = 0;
+            if (dist <= 200) {
+                puntos = 10 - Math.floor(dist / 20); // cada 20px reduce 1 punto
+            } else {
+                puntos = 0; // fuera del blanco
+            }
+
+            // Dibujar disparo
+            ctx.beginPath();
+            ctx.arc(data.x, data.y, 5, 0, Math.PI * 2);
+            ctx.fillStyle = 'red';
+            ctx.fill();
+
+            // Reproducir sonido
+            const sonido = document.getElementById("sonido-disparo");
+            sonido.currentTime = 0;
+            sonido.play();
+
+            // Actualizar estadísticas
+            tiros++;
+            totalPuntos += puntos;
+
+            document.getElementById('contador-tiros').textContent = `Tiros realizados: ${tiros}`;
+            document.getElementById('total-puntos').textContent = `Total puntos: ${totalPuntos}`;
+            document.getElementById('ultimo-puntos').textContent = `Último tiro: ${puntos}`;
+
+            // Agregar fila al historial
+            const tabla = document.querySelector("#tabla-historial tbody");
+            const fila = document.createElement("tr");
+            fila.innerHTML = `
+                <td>${tiros}</td>
+                <td>${puntos}</td>
+                <td>(${data.x}, ${data.y})</td>
+            `;
+            tabla.appendChild(fila);
+        });
+
+        // Reiniciar solo estadísticas y tabla, dejando los círculos
+        document.getElementById("btn-reset").addEventListener("click", () => {
+            tiros = 0;
+            totalPuntos = 0;
+
+            document.getElementById('contador-tiros').textContent = `Tiros realizados: 0`;
+            document.getElementById('total-puntos').textContent = `Total puntos: 0`;
+            document.getElementById('ultimo-puntos').textContent = `Último tiro: 0`;
+
+            document.querySelector("#tabla-historial tbody").innerHTML = "";
+
+            dibujarBlanco(); // redibujar todos los círculos con números
+        });
     </script>
+
+
+
 </body>
 </html>

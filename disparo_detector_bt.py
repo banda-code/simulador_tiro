@@ -6,11 +6,11 @@ import time
 import requests
 
 # ----- CONFIG -----
-BT_COM = 'COM6'                  # <- pon aquí el COM creado por Windows al emparejar HC-05
+BT_COM = 'COM4'                  # <- pon aquí el COM creado por Windows al emparejar HC-05
 BT_BAUD = 9600
-CAM_URL = "http://10.111.174.44:8080/video"  # <- URL que te da IP Webcam (ajusta IP
+# CAM_URL = "http://10.111.174.44:8080/video"  # <- URL que te da IP Webcam (ajusta IP
 #CAM_URL = "http://10.72.199.252:8080/video"  # <- URL que te da IP Webcam (ajusta IP)
-#CAM_URL = "http://192.168.0.100:8080/video"  # <- URL que te da IP Webcam (ajusta IP)
+CAM_URL = "http://192.168.0.2:8080/video"  # <- URL que te da IP Webcam (ajusta IP)
 
 BACKEND_URL = "http://127.0.0.1:5000/registrar_disparo"
 CANVAS_W, CANVAS_H = 500, 500
@@ -60,12 +60,19 @@ while True:
     cam_h = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT)) or frame.shape[0]
 
     x, y, r = detectar_punto_rojo(frame)
+    # Depuración: imprime coordenadas
+    # if x is not None:
+        # print(f"Láser detectado en: {x}, {y}, radio: {r}")
+    # else:
+        # print("Láser no detectado en este frame")
     if x is not None:
         # Mapea coords cámara -> canvas
         x_canvas = int(x * CANVAS_W / cam_w) + OFFSET_X
         y_canvas = int(y * CANVAS_H / cam_h) + OFFSET_Y
         x_canvas = max(0, min(CANVAS_W, x_canvas))
         y_canvas = max(0, min(CANVAS_H, y_canvas))
+        
+
 
         cv2.circle(frame, (x, y), r, (0,255,0), 2)
         cv2.putText(frame, f"({x},{y}) -> ({x_canvas},{y_canvas})", (10,30),
