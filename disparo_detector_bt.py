@@ -6,11 +6,11 @@ import time
 import requests
 
 # ----- CONFIG -----
-BT_COM = 'COM4'                  # <- pon aquí el COM creado por Windows al emparejar HC-05
+BT_COM = 'COM5'                  # <- pon aquí el COM creado por Windows al emparejar HC-05
 BT_BAUD = 9600
-# CAM_URL = "http://10.111.174.44:8080/video"  # <- URL que te da IP Webcam (ajusta IP
-#CAM_URL = "http://10.72.199.252:8080/video"  # <- URL que te da IP Webcam (ajusta IP)
-CAM_URL = "http://192.168.0.2:8080/video"  # <- URL que te da IP Webcam (ajusta IP)
+CAM_URL = "http://10.36.205.181:8080/video"  # <- URL que te da IP Webcam (ajusta IP
+# CAM_URL = "http://10.79.228.236:8080/video"  # <- URL que te da IP Webcam (ajusta IP)
+# CAM_URL = "http://192.168.74.35:8080/video"  # <- URL que te da IP Webcam (ajusta IP)
 
 BACKEND_URL = "http://127.0.0.1:5000/registrar_disparo"
 CANVAS_W, CANVAS_H = 500, 500
