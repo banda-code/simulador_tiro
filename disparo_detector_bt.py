@@ -6,9 +6,9 @@ import time
 import requests
 
 # ----- CONFIG -----
-BT_COM = 'COM5'                  # <- pon aquí el COM creado por Windows al emparejar HC-05
+BT_COM = 'COM4'                  # <- pon aquí el COM creado por Windows al emparejar HC-05
 BT_BAUD = 9600
-CAM_URL = "http://10.36.205.181:8080/video"  # <- URL que te da IP Webcam (ajusta IP
+CAM_URL = "http://10.246.47.87:8080/video"  # <- URL que te da IP Webcam (ajusta IP
 # CAM_URL = "http://10.79.228.236:8080/video"  # <- URL que te da IP Webcam (ajusta IP)
 # CAM_URL = "http://192.168.74.35:8080/video"  # <- URL que te da IP Webcam (ajusta IP)
 
@@ -55,7 +55,7 @@ while True:
     if not ret:
         print("No frame")
         break
-
+    frame = cv2.flip(frame, 1)
     cam_w = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH)) or frame.shape[1]
     cam_h = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT)) or frame.shape[0]
 
@@ -104,7 +104,7 @@ while True:
                     print("Error al enviar:", e)
             else:
                 print("DISPARO pero no detectado el láser en frame")
-
+    frame = cv2.resize(frame, (720, 600))
     cv2.imshow("Stream", frame)
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
